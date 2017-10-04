@@ -39,6 +39,11 @@ For all the smack I talk about Visual Studio, my text-editing apple didn't fall 
 
 Just drop the scripts into a `scripts` directory in the root of your mod project, set up your `tasks.json` similar to the above (don't forget to update the paths being passed into the powershell scripts to point to your SDK and game installations), and you're good to go. Probably, anyway.
 
+## About the scripts
+- **build.ps1**: This is by far the most involved script and is the one in which I see the most potential to help other modders. It's basically my attempt to reverse-engineer what happens when you hit "Build" in ModBuddy. It compiles your mod and copies its assets to the appropriate location for debug. 
+- **run.ps1**: This is more or less functionally equivalent to running the `StartDebugging.bat` file that comes with the SDK. I just tossed it into a powershell script for better integration with some text editors.
+- **runUnrealEditor.ps1**: This is just a stand-in for opening XCOM's Unreal Editor from the Tools menu in ModBuddy.
+
 ## Known issues
 Because I didn't have time to be a paragon of good practice, there are a few issues right out of the box. Sorry.
 
