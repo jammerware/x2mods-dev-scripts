@@ -47,6 +47,7 @@ Just drop the scripts into a `scripts` directory in the root of your mod project
 ## Known issues
 Because I didn't have time to be a paragon of good practice, there are a few issues right out of the box. Sorry.
 
+- Currently, I don't have scripts to create or publish mod projects. Publish is definitely something I want to do, but I haven't had time to find out what happens when you click "Publish" in ModBuddy, not least because I haven't actually published a mod yet. This is on my short list.
 - These scripts, as written, assume you have the War of the Chosen expansion and that you're building mods for it. If either of these assumptions don't apply to you, you can probably tweak the scripts to work, but caveat code monkey.
 - The scripts rely on Powershell. Hey, I don't like it either.
 - Breakpoint debugging isn't supported. This seems really hard to me, but that's possibly because I never really got it working with ModBuddy either. If you have suggestions on this, PR away!
