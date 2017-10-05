@@ -76,7 +76,11 @@ if ($forceFullBuild) {
 else {
     # clean mod's compiled script
     Write-Host "Cleaning existing mod's compiled script from $sdkPath/XComGame/Script..."
-    Remove-Item "$sdkPath\XComGame\Script\$modNameCanonical.u"
+
+    if (Test-Path "$sdkPath\XComGame\Script\$modNameCanonical.u") {
+        Remove-Item "$sdkPath\XComGame\Script\$modNameCanonical.u"
+    }
+    
     Write-Host "Cleaned."
 }
 
