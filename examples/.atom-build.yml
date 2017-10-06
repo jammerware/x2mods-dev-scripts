@@ -1,0 +1,32 @@
+---
+cmd: "%PSPath%"
+name: build
+args:
+  - "./scripts/build.ps1"
+  - "-mod %modName%"
+  - "-srcDirectory %srcDir%"
+  - "-sdkPath %sdkPath%"
+  - "-gamePath %gamePath%"
+sh: true
+env:
+targets:
+  run:s
+    name: run
+    sh: true
+    cmd: "%PSPath%"
+    args:
+      - "./scripts/run.ps1"
+      - "-gamePath %gamePath%"
+    env:
+      PSPath: "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      gamePath: "'W:/SteamLibrary/steamapps/common/XCOM 2/'"
+  open unreal editor:
+    name: open unreal editor
+    sh: true
+    cmd: "%PSPath%"
+    args:
+      - "./scripts/runUnrealEditor.ps1"
+      - "-gamePath %gamePath%"
+    env:
+      PSPath: "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
+      gamePath: "'W:/SteamLibrary/steamapps/common/XCOM 2/'"
