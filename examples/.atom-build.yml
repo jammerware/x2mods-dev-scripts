@@ -9,8 +9,13 @@ args:
   - "-gamePath %gamePath%"
 sh: true
 env:
+  modName: "'examplemod'"                                                                         # your mod's name - this shouldn't have spaces or special characters, and it's usually the name of the first directory inside your mod's source dir
+  srcDir: "'C:/Users/your_name/Documents/Firaxis ModBuddy/XCOM - War of the Chosen/examplemod/'"  # the path that contains your mod's .XCOM_sln
+  sdkPath: "'C:/SteamLibrary/steamapps/common/XCOM 2 War of the Chosen SDK/'"                     # the path to your SDK installation ending in "XCOM 2 War of the Chosen SDK"
+  gamePath: "'C:/SteamLibrary/steamapps/common/XCOM 2/'"                                          # the path to your XCOM 2 installation ending in "XCOM 2"
+  PSPath: "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"                        # the path to your installation of powershell
 targets:
-  run:s
+  run:
     name: run
     sh: true
     cmd: "%PSPath%"
