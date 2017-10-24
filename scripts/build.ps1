@@ -22,6 +22,12 @@ function StageDirectory ([string]$directoryName, [string]$srcDirectory, [string]
     }
 }
 
+function CheckErrorCode([string] $message) {
+    if ($LASTEXITCODE -ne 0) {
+        throw $message;
+    }
+}
+
 # alias params for clarity in the script (we don't want the person invoking this script to have to type the name -modNameCanonical)
 $modNameCanonical = $mod
 # we're going to ask that people specify the folder that has their .XCOM_sln in it as the -srcDirectory argument, but a lot of the time all we care about is
@@ -88,16 +94,19 @@ else {
 Write-Host "Compiling base game scripts..."
 & "$sdkPath/binaries/Win64/XComGame.com" make -nopause -unattended
 Write-Host "Compiled."
+CheckErrorCode "Failed to compile the base game scripts. This probably isn't a problem with your mod. Have you been monkeying around with SrcOrig, perchance?"
 
 # build the mod's scripts
 Write-Host "Compiling mod scripts..."
 &"$sdkPath/binaries/Win64/XComGame.com" make -nopause -mods $modNameCanonical "$stagingPath"
+CheckErrorCode "Failed to compile mod scripts."
 Write-Host "Compiled."
 
 # build the mod's shader cache
 if (Test-Path -Path "$stagingPath/Content/*" -Include *.upk, *.umap) {
     Write-Host "Precompiling mod shaders..."
     &"$sdkPath/binaries/Win64/XComGame.com" precompileshaders -nopause platform=pc_sm4 DLC=$modNameCanonical
+    CheckErrorCode "Failed to precompile mod shaders."
     Write-Host "Precompiled."
 }
 else {
