@@ -119,8 +119,12 @@ Copy-Item "$sdkPath/XComGame/Script/$modNameCanonical.u" "$stagingPath/Script" -
 Write-Host "Copied."
 
 # copy all staged files to the actual game's mods folder
+$productionPath = "$gamePath/XCom2-WarOfTheChosen/XComGame/Mods/"
 Write-Host "Copying all staging files to production..."
-Copy-Item $stagingPath "$gamePath/XCom2-WarOfTheChosen/XComGame/Mods/" -Force -Recurse -WarningAction SilentlyContinue
+if (-Not (Test-Path $productionPath)) {
+    New-Item $productionPath -ItemType Directory
+}
+Copy-Item $stagingPath $productionPath -Force -Recurse -WarningAction SilentlyContinue
 Write-Host "Copied."
 
 # we made it!
