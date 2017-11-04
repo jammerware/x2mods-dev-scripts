@@ -31,7 +31,7 @@ targets:
     cmd: "%PSPath%"
     args:
       - "./scripts/runUnrealEditor.ps1"
-      - "-gamePath %gamePath%"
+      - "-sdkPath %sdkPath%"
     env:
       PSPath: "C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\powershell.exe"
-      gamePath: "'W:/SteamLibrary/steamapps/common/XCOM 2/'"
+      sdkPath: "'C:/SteamLibrary/steamapps/common/XCOM 2 War of the Chosen SDK'"

@@ -18,7 +18,7 @@
         {
             "taskName": "runUnrealEditor",
             "type": "shell",
-            "command": "powershell.exe -file '${workspaceRoot}/scripts/runUnrealEditor.ps1' -gamePath 'D:/Steam/steamapps/common/XCOM 2 War of the Chosen SDK'"
+            "command": "powershell.exe -file '${workspaceRoot}/scripts/runUnrealEditor.ps1' -sdkPath 'D:/Steam/steamapps/common/XCOM 2 War of the Chosen SDK'"
         }
     ]
 }
