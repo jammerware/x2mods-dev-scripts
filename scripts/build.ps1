@@ -28,6 +28,87 @@ function CheckErrorCode([string] $message) {
     }
 }
 
+# Helper for invoking the make cmdlet. Captures stdout/stderr and rewrites error and warning lines to fix up the
+# source paths. Since make operates on a copy of the sources copied to the SDK folder, diagnostics print the paths
+# to the copies. If you try to jump to these files (e.g. by tying this output to the build commands in your editor)
+# you'll be editting the copies, which will then be overwritten the next time you build with the sources in your mod folder
+# that haven't been changed.
+function Launch-Make([string] $makeCmd, [string] $makeFlags, [string] $sdkPath, [string] $modSrcRoot) {
+    # Create a ProcessStartInfo object to hold the details of the make command, its arguments, and set up
+    # stdout/stderr redirection.
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = $makeCmd
+    $pinfo.RedirectStandardOutput = $true
+    $pinfo.RedirectStandardError = $true
+    $pinfo.UseShellExecute = $false
+    $pinfo.Arguments = $makeFlags
+
+    # Create an object to hold the paths we want to rewrite: the path to the SDK 'Development' folder
+    # and the 'modSrcRoot' (the directory that holds the .x2proj file). This is needed because the output
+    # is read in an action block that is a separate scope and has no access to local vars/parameters of this
+    # function.
+    $developmentDirectory = Join-Path -Path $sdkPath 'Development'
+    $messageData = New-Object psobject -property @{
+        developmentDirectory = $developmentDirectory;
+        modSrcRoot = $modSrcRoot
+    }
+
+    # We need another object for the Exited event to set a flag we can monitor from this function.
+    $exitData = New-Object psobject -property @{ exited = $false }
+
+    # An action for handling data written to stdout. The make cmdlet writes all warning and error info to
+    # stdout, so we look for it here.
+    $outAction = {
+        $outTxt = $Event.SourceEventArgs.Data
+        # Match warning/error lines
+        if ($outTxt -Match "Error|Warning") {
+            # And just do a regex replace on the sdk Development directory with the mod src directory.
+            # The pattern needs escaping to avoid backslashes in the path being interpreted as regex escapes, etc.
+            $pattern = [regex]::Escape($event.MessageData.developmentDirectory)
+            # n.b. -Replace is case insensitive
+            $replacementTxt = $outtxt -Replace $pattern, $event.MessageData.modSrcRoot
+            Write-Host $replacementTxt
+        } else {
+            Write-Host $outTxt
+        }
+    }
+
+    # An action for handling data written to stderr. The make cmdlet doesn't seem to write anything here,
+    # or at least not diagnostics, so we can just pass it through.
+    $errAction = {
+        $errTxt = $Event.SourceEventArgs.Data
+        Write-Host $errTxt
+    }
+
+    # Set the exited flag on our exit object on process exit.
+    $exitAction = {
+        $event.MessageData.exited = $true
+    }
+
+    # Create the process and register for the various events we care about.
+    $process = New-Object System.Diagnostics.Process
+    Register-ObjectEvent -InputObject $process -EventName OutputDataReceived -Action $outAction -MessageData $messageData | Out-Null
+    Register-ObjectEvent -InputObject $process -EventName ErrorDataReceived -Action $errAction | Out-Null
+    Register-ObjectEvent -InputObject $process -EventName Exited -Action $exitAction -MessageData $exitData | Out-Null
+    $process.StartInfo = $pinfo
+
+    # All systems go!
+    $process.Start() | Out-Null
+    $process.BeginOutputReadLine()
+    $process.BeginErrorReadLine()
+
+    # Wait for the process to exit. This is horrible, but using $process.WaitForExit() blocks
+    # the powershell thread so we get no output from make echoed to the screen until the process finishes.
+    # By polling we get regular output as it goes.
+    while (!$exitData.exited) {
+        Start-Sleep -m 50
+    }
+
+    # Explicitly set LASTEXITCODE from the process exit code so the rest of the script
+    # doesn't need to care if we launched the process in the background or via "&".
+    $global:LASTEXITCODE = $process.ExitCode
+}
+
 # alias params for clarity in the script (we don't want the person invoking this script to have to type the name -modNameCanonical)
 $modNameCanonical = $mod
 # we're going to ask that people specify the folder that has their .XCOM_sln in it as the -srcDirectory argument, but a lot of the time all we care about is
@@ -86,19 +167,20 @@ else {
     if (Test-Path "$sdkPath\XComGame\Script\$modNameCanonical.u") {
         Remove-Item "$sdkPath\XComGame\Script\$modNameCanonical.u"
     }
-    
+
     Write-Host "Cleaned."
 }
 
 # build the base game scripts
 Write-Host "Compiling base game scripts..."
+# This could be replaced with a Launch-Make call as well for highlanders.
 & "$sdkPath/binaries/Win64/XComGame.com" make -nopause -unattended
 Write-Host "Compiled."
 CheckErrorCode "Failed to compile the base game scripts. This probably isn't a problem with your mod. Have you been monkeying around with SrcOrig, perchance?"
 
 # build the mod's scripts
 Write-Host "Compiling mod scripts..."
-&"$sdkPath/binaries/Win64/XComGame.com" make -nopause -mods $modNameCanonical "$stagingPath"
+Launch-Make "$sdkPath/binaries/Win64/XComGame.com" "make -nopause -mods $modNameCanonical $stagingPath" $sdkPath $modSrcRoot
 CheckErrorCode "Failed to compile mod scripts."
 Write-Host "Compiled."
 
