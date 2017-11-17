@@ -2,23 +2,26 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "build",
+            "label": "build",
             "type": "shell",
             "command": "powershell.exe -file '${workspaceRoot}/scripts/build.ps1' -mod 'JammerwareRunnerClass' -srcDirectory '${workspaceRoot}' -sdkPath 'D:/Steam/steamapps/common/XCOM 2 War of the Chosen SDK' -gamePath 'D:/Steam/steamapps/common/XCOM 2'",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
         },
         {
-            "taskName": "debug",
+            "label": "debug",
             "type": "shell",
-            "command": "powershell.exe -file '${workspaceRoot}/scripts/run.ps1' -gamePath 'D:/Steam/steamapps/common/XCOM 2'"
+            "command": "powershell.exe -file '${workspaceRoot}/scripts/run.ps1' -gamePath 'D:/Steam/steamapps/common/XCOM 2'",
+            "problemMatcher": []
         },
         {
-            "taskName": "runUnrealEditor",
+            "label": "runUnrealEditor",
             "type": "shell",
-            "command": "powershell.exe -file '${workspaceRoot}/scripts/runUnrealEditor.ps1' -sdkPath 'D:/Steam/steamapps/common/XCOM 2 War of the Chosen SDK'"
+            "command": "powershell.exe -file '${workspaceRoot}/scripts/runUnrealEditor.ps1' -sdkPath 'D:/Steam/steamapps/common/XCOM 2 War of the Chosen SDK'",
+            "problemMatcher": []
         }
     ]
 }
